@@ -4,6 +4,7 @@ import fr.alvisevenezia.Utils.Error.InvalidDataTypeError;
 import fr.alvisevenezia.Utils.VERSION;
 import fr.alvisevenezia.Web.DiscussPacket.DiscussPacket;
 import fr.alvisevenezia.Web.Utils.DATAType;
+import fr.alvisevenezia.encryption.symmetrical.SymmetricalEncryptedMessage;
 
 import java.io.DataOutputStream;
 import java.net.Socket;
@@ -39,6 +40,23 @@ public class DiscussPacketHandler {
         this.message = message;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setEncryptedMessage(String message, String key) {
+
+        //on verifie que le type de donnée soit bien du texte
+        if(dataType != DATAType.TEXT){
+
+            //sinon on renvoie une erreur
+            throw new InvalidDataTypeError();
+
+        }
+
+        this.message = SymmetricalEncryptedMessage.getEncryptedMessage(message,key);
+    }
+
     public DiscussPacket getFirstPacket(DiscussPacket[] discussPacketsArray){
 
         int min = -1;
@@ -62,9 +80,21 @@ public class DiscussPacketHandler {
     public byte[] getMergedByteArray(DiscussPacket[] discussPacketsArray){
 
         byte[] byteArray = new byte[discussPacketsArray.length*(discussPacketsArray[0].getSize()-discussPacketsArray[0].getVersion().getPacketHeaderSize())];
+        int index = 0;
 
+        for(DiscussPacket packet : discussPacketsArray){
 
-        for(int packetId = 0;)
+            System.out.println(packet.getPacketId());
+
+            byte[] byteDataArray = packet.getData();
+
+            for(int i = 0;i<byteDataArray.length;i++){
+
+                byteArray[(packet.getPacketId()*byteDataArray.length)+i] = byteDataArray[i];
+
+            }
+
+        }
 
 
         return byteArray;
@@ -120,6 +150,16 @@ public class DiscussPacketHandler {
             for(int i = 0; i< discussPackets.length;i++){
 
                 byte[] data = discussPackets[i].buildData();
+
+                System.out.print("BYTE MSG : ");
+
+                for(byte b : data) {
+
+                    System.out.print(b);
+
+                }
+
+                System.out.println('\n');
 
                 outputStream.write(data);
                 outputStream.flush();
