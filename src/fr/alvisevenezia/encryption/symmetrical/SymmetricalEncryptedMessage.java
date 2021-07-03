@@ -17,6 +17,22 @@ public class SymmetricalEncryptedMessage {
 
     public static final IvParameterSpec IV_PARAMETER_SPEC = new IvParameterSpec("cacacaca".getBytes(StandardCharsets.UTF_16LE));
 
+    public static byte[] clearByteArray(byte[] array){
+
+        int newSize = array.length;
+
+        for(int i = array.length-1;i > 1;i -= 2){
+
+            if(array[i] == 0 & array[i-1] == 0) newSize -= 2;
+
+        }
+
+        byte[] newArray = Arrays.copyOf(array,newSize);
+
+        return newArray;
+
+    }
+
     public static SecretKey getKey(String key){
 
         byte[] keyByteArray;
@@ -42,21 +58,21 @@ public class SymmetricalEncryptedMessage {
         return secretKey;
     }
 
-    public static String getEncryptedMessage(String message,String key){
+    public static byte[] getEncryptedMessage(String message,String key){
 
         Cipher cipher;
-        byte[] msg = Arrays.copyOf(message.getBytes(StandardCharsets.UTF_16),message.length()+(16-message.length()%16));
+        byte[] msg = Arrays.copyOf(message.getBytes(StandardCharsets.UTF_16LE),message.length()*2+(16-message.length()%16));
 
         try {
-            cipher = Cipher.getInstance("AES/CBC/NoPadding ");
-            cipher.init(Cipher.ENCRYPT_MODE, getKey(key),IV_PARAMETER_SPEC);
+            cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, getKey(key));
 
-            String s = new String(cipher.doFinal(msg),StandardCharsets.UTF_16LE);
+            byte[] cryptedByteArray = cipher.doFinal(msg);
 
-            System.out.print("ENCRYPTED MSG : "+s);
+            System.out.println("ENCRYPTED MSG : "+new String(cryptedByteArray));
 
-            return s;
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
+            return cryptedByteArray;
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
         }
 
@@ -71,10 +87,11 @@ public class SymmetricalEncryptedMessage {
         System.out.println("DECRYPTED MSG LENGTH : "+message.length);
 
         try {
-            cipher = Cipher.getInstance("AES/CBC/NoPadding ");
-            cipher.init(Cipher.DECRYPT_MODE, getKey(key),IV_PARAMETER_SPEC);
-            return new String(cipher.doFinal(message),StandardCharsets.UTF_16);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
+            cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, getKey(key));
+            byte[] array = clearByteArray(cipher.doFinal(message));
+            return new String(array,StandardCharsets.UTF_16LE);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
         }
 

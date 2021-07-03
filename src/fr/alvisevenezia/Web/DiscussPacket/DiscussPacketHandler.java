@@ -18,7 +18,7 @@ public class DiscussPacketHandler {
     private int actualIndex;
     private DATAType dataType;
     private VERSION version;
-    private String message;
+    private byte[] message;
 
     public DiscussPacketHandler(VERSION version, DATAType dataType, int discussPacketSize, int startIndex) {
         this.discussPacketSize = discussPacketSize;
@@ -37,10 +37,10 @@ public class DiscussPacketHandler {
 
         }
 
-        this.message = message;
+        this.message = message.getBytes(StandardCharsets.UTF_16LE);
     }
 
-    public String getMessage() {
+    public byte[] getMessage() {
         return message;
     }
 
@@ -79,7 +79,17 @@ public class DiscussPacketHandler {
 
     public byte[] getMergedByteArray(DiscussPacket[] discussPacketsArray){
 
-        byte[] byteArray = new byte[discussPacketsArray.length*(discussPacketsArray[0].getSize()-discussPacketsArray[0].getVersion().getPacketHeaderSize())];
+        byte[] byteArray;
+
+        if(discussPacketsArray[discussPacketsArray.length-1].getActualSize() !=discussPacketsArray[discussPacketsArray.length-1].getSize()) {
+
+            byteArray = new byte[(discussPacketsArray.length-1) * (discussPacketsArray[0].getSize() - discussPacketsArray[0].getVersion().getPacketHeaderSize()) + discussPacketsArray[discussPacketsArray.length-1].getActualSize()];
+
+        }else{
+
+            byteArray = new byte[discussPacketsArray.length * (discussPacketsArray[0].getSize() - discussPacketsArray[0].getVersion().getPacketHeaderSize())];
+
+        }
         int index = 0;
 
         for(DiscussPacket packet : discussPacketsArray){
@@ -89,6 +99,8 @@ public class DiscussPacketHandler {
             byte[] byteDataArray = packet.getData();
 
             for(int i = 0;i<byteDataArray.length;i++){
+
+                if((packet.getPacketId()*byteDataArray.length)+i == byteArray.length)break;
 
                 byteArray[(packet.getPacketId()*byteDataArray.length)+i] = byteDataArray[i];
 
@@ -107,15 +119,17 @@ public class DiscussPacketHandler {
 
         int packetId;
         int packetSize = 0;
+        int actualPacketSize = 0;
         int limit = 1;
         byte[] packetData;
 
         for(int turn = 0;turn < limit;turn++){
 
-            VERSION packetVersion = VERSION.getByID(ByteBuffer.wrap(new byte[]{0, 0, byteArray[turn * packetSize + 0], byteArray[turn * packetSize + 1]}).getInt());
+            VERSION packetVersion = VERSION.getByID(ByteBuffer.wrap(new byte[]{0, 0, byteArray[turn * packetSize], byteArray[turn * packetSize + 1]}).getInt());
             packetId = ByteBuffer.wrap(new byte[]{0, 0, byteArray[turn * packetSize + 2], byteArray[turn * packetSize + 3]}).getInt();
             DATAType packetDataType = DATAType.getByID(ByteBuffer.wrap(new byte[]{0, 0, 0, byteArray[turn * packetSize + 4]}).getInt());
             packetSize = ByteBuffer.wrap(new byte[]{0, 0, byteArray[turn * packetSize + 5], byteArray[turn * packetSize + 6]}).getInt();
+            actualPacketSize = ByteBuffer.wrap(new byte[]{0, 0, byteArray[turn * packetSize + 7], byteArray[turn * packetSize + 8]}).getInt();
 
             if((byteArray.length/packetSize) != limit){
 
@@ -126,13 +140,13 @@ public class DiscussPacketHandler {
 
             packetData = new byte[packetSize - version.getPacketHeaderSize()];
 
-            for (int i = 7; i < packetSize; i++) {
+            for (int i = version.getPacketHeaderSize(); i < packetSize; i++) {
 
                 packetData[i - version.getPacketHeaderSize()] = byteArray[turn * packetSize + i];
 
             }
 
-            discussPacket = new DiscussPacket(packetVersion, packetId, packetDataType, packetSize);
+            discussPacket = new DiscussPacket(packetId, packetSize, actualPacketSize, packetVersion, packetDataType);
             discussPacket.setData(packetData);
 
             discussPacketArray[turn] = discussPacket;
@@ -147,10 +161,11 @@ public class DiscussPacketHandler {
         try {
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
-            System.out.print("BYTE MSG : ");
+            System.out.print("PACKET BYTE MSG : ");
 
             for(int i = 0; i< discussPackets.length;i++){
 
+                System.out.println("PACKET ID : "+i);
                 byte[] data = discussPackets[i].buildData();
 
                 for(byte b : data) {
@@ -182,6 +197,7 @@ public class DiscussPacketHandler {
 
         byte[] data;
         byte[] packetData;
+        int trigger = -1;
         DiscussPacket discussPacket;
 
         switch (dataType){
@@ -190,29 +206,37 @@ public class DiscussPacketHandler {
 
                 if(message == null)throw new NullPointerException();
 
-                data = message.getBytes(StandardCharsets.UTF_16);
+                DiscussPacket[] packets = new DiscussPacket[(message.length/bodySize)+1];
 
-                DiscussPacket[] packets = new DiscussPacket[(data.length/bodySize)+1];
-
-                for(int packetID = 0;packetID < (data.length/bodySize)+1;packetID++){
+                for(int packetID = 0;packetID < (message.length/bodySize)+1;packetID++){
 
                     packetData = new byte[bodySize];
 
                     for(int dataID = 0;dataID < bodySize;dataID++){
 
-                        if((packetID*bodySize)+dataID >= data.length){
+                        if((packetID*bodySize)+dataID >= message.length){
 
                             packetData[dataID] = 0b00000000;
 
+                            if(trigger == -1)trigger = dataID;
+
+
                         }else {
 
-                            packetData[dataID] = data[(packetID * bodySize) + dataID];
+                            packetData[dataID] = message[(packetID * bodySize) + dataID];
 
                         }
                     }
 
-                    discussPacket = new DiscussPacket(version,packetID,dataType,discussPacketSize);
+                    if(trigger != -1) {
 
+                        discussPacket = new DiscussPacket(packetID, discussPacketSize, trigger, version, dataType);
+
+                    }else{
+
+                        discussPacket = new DiscussPacket(packetID, discussPacketSize, discussPacketSize, version, dataType);
+
+                    }
                     discussPacket.setData(packetData);
                     packets[packetID] = discussPacket;
 

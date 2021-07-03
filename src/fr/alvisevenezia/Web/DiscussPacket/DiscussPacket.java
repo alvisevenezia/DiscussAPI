@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
  *      - packetId : 2 bytes
  *      - dataType : 1 byte
  *      - size : 2 bytes
+ *      - actual data size : 2 bytes
  *
  * }
  *
@@ -28,16 +29,22 @@ public class DiscussPacket {
 
     private final int packetId;
     private final int size;
+    private final int actualSize;
     private final VERSION version;
     private final DATAType dataType;
     private byte data[];
 
-    public DiscussPacket(VERSION version, int packetId, DATAType dataType,int size) {
-        this.version = version;
+    public DiscussPacket(int packetId, int size, int actualSize, VERSION version, DATAType dataType) {
         this.packetId = packetId;
-        this.dataType = dataType;
         this.size = size;
+        this.actualSize = actualSize;
+        this.version = version;
+        this.dataType = dataType;
+        this.data = data;
+    }
 
+    public int getActualSize() {
+        return actualSize;
     }
 
     public int getPacketId() {
@@ -78,6 +85,8 @@ public class DiscussPacket {
         byteBuffer.put(ByteBuffer.allocate(4).putInt(dataType.getId()).array()[0]);
         byteBuffer.put(Integer.valueOf(((size)>>8)).byteValue());
         byteBuffer.put(Integer.valueOf(size).byteValue());
+        byteBuffer.put(Integer.valueOf(((actualSize)>>8)).byteValue());
+        byteBuffer.put(Integer.valueOf(actualSize).byteValue());
 
         //building the body of the discussPacket
 

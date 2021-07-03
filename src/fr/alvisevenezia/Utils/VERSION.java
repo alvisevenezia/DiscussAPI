@@ -4,7 +4,7 @@ import fr.alvisevenezia.Web.Utils.DATAType;
 
 public enum VERSION {
 
-    BETA(0,7,"BETA");
+    BETA(0,9,"BETA");
 
     int id;
     int packetHeaderSize;
