@@ -84,7 +84,7 @@ public class DiscussPacketHandler {
 
         for(DiscussPacket packet : discussPacketsArray){
 
-            System.out.println(packet.getPacketId());
+            System.out.println("MERGED PACKET ID : "+packet.getPacketId());
 
             byte[] byteDataArray = packet.getData();
 
@@ -147,11 +147,11 @@ public class DiscussPacketHandler {
         try {
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
+            System.out.print("BYTE MSG : ");
+
             for(int i = 0; i< discussPackets.length;i++){
 
                 byte[] data = discussPackets[i].buildData();
-
-                System.out.print("BYTE MSG : ");
 
                 for(byte b : data) {
 

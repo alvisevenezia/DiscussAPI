@@ -25,6 +25,8 @@ public class SymmetricalEncryptedMessage {
             MessageDigest sha = MessageDigest.getInstance("SHA-256");
             keyByteArray = sha.digest(key.getBytes(StandardCharsets.UTF_16));
 
+            System.out.print("KEY BYTE : ");
+
             for(byte b : keyByteArray){
 
                 System.out.print(b);
@@ -45,12 +47,15 @@ public class SymmetricalEncryptedMessage {
         Cipher cipher;
         byte[] msg = Arrays.copyOf(message.getBytes(StandardCharsets.UTF_16),message.length()+(16-message.length()%16));
 
-        System.out.println(msg.length);
-
         try {
             cipher = Cipher.getInstance("AES/CBC/NoPadding ");
             cipher.init(Cipher.ENCRYPT_MODE, getKey(key),IV_PARAMETER_SPEC);
-            return new String(cipher.doFinal(msg),StandardCharsets.UTF_16);
+
+            String s = new String(cipher.doFinal(msg),StandardCharsets.UTF_16LE);
+
+            System.out.print("ENCRYPTED MSG : "+s);
+
+            return s;
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
@@ -62,16 +67,13 @@ public class SymmetricalEncryptedMessage {
     public static String getDecryptedMessage(byte[] message,String key){
 
         Cipher cipher = null;
-        byte[] msg = Arrays.copyOf(message,message.length+(16-message.length%16));
 
-        //message.length+(16-message.length%16)
-
-        System.out.println(msg.length);
+        System.out.println("DECRYPTED MSG LENGTH : "+message.length);
 
         try {
             cipher = Cipher.getInstance("AES/CBC/NoPadding ");
             cipher.init(Cipher.DECRYPT_MODE, getKey(key),IV_PARAMETER_SPEC);
-            return new String(cipher.doFinal(msg),StandardCharsets.UTF_16);
+            return new String(cipher.doFinal(message),StandardCharsets.UTF_16);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
