@@ -1,6 +1,4 @@
-package fr.alvisevenezia.Utils;
-
-import fr.alvisevenezia.Web.Utils.DATAType;
+package fr.alvisevenezia.utils;
 
 public enum VERSION {
 

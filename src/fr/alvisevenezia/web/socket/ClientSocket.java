@@ -1,4 +1,4 @@
-package fr.alvisevenezia.Web.Socket;
+package fr.alvisevenezia.web.socket;
 
 import java.io.IOException;
 import java.net.Socket;

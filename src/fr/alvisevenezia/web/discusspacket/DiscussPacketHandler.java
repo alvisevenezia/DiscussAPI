@@ -1,9 +1,8 @@
-package fr.alvisevenezia.Web.DiscussPacket;
+package fr.alvisevenezia.web.discusspacket;
 
-import fr.alvisevenezia.Utils.Error.InvalidDataTypeError;
-import fr.alvisevenezia.Utils.VERSION;
-import fr.alvisevenezia.Web.DiscussPacket.DiscussPacket;
-import fr.alvisevenezia.Web.Utils.DATAType;
+import fr.alvisevenezia.utils.error.InvalidDataTypeError;
+import fr.alvisevenezia.utils.VERSION;
+import fr.alvisevenezia.web.utils.DATAType;
 import fr.alvisevenezia.encryption.symmetrical.SymmetricalEncryptedMessage;
 
 import java.io.DataOutputStream;

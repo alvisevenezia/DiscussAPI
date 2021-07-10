@@ -1,7 +1,7 @@
-package fr.alvisevenezia.Web.DiscussPacket;
+package fr.alvisevenezia.web.discusspacket;
 
-import fr.alvisevenezia.Utils.VERSION;
-import fr.alvisevenezia.Web.Utils.DATAType;
+import fr.alvisevenezia.utils.VERSION;
+import fr.alvisevenezia.web.utils.DATAType;
 
 import java.nio.ByteBuffer;
 

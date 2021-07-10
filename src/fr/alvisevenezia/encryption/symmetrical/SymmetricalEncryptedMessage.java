@@ -15,8 +15,6 @@ import java.util.Base64;
 
 public class SymmetricalEncryptedMessage {
 
-    public static final IvParameterSpec IV_PARAMETER_SPEC = new IvParameterSpec("cacacaca".getBytes(StandardCharsets.UTF_16LE));
-
     public static byte[] clearByteArray(byte[] array){
 
         int newSize = array.length;
@@ -61,7 +59,7 @@ public class SymmetricalEncryptedMessage {
     public static byte[] getEncryptedMessage(String message,String key){
 
         Cipher cipher;
-        byte[] msg = Arrays.copyOf(message.getBytes(StandardCharsets.UTF_16LE),message.length()*2+(16-message.length()%16));
+        byte[] msg = Arrays.copyOf(message.getBytes(StandardCharsets.UTF_16LE),message.length()*2);
 
         try {
             cipher = Cipher.getInstance("AES");

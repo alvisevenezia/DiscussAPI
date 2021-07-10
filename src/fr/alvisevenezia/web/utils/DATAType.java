@@ -1,4 +1,4 @@
-package fr.alvisevenezia.Web.Utils;
+package fr.alvisevenezia.web.utils;
 
 public enum DATAType {
 
