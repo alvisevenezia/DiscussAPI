@@ -29,8 +29,7 @@ public class DiscussPacketHandler {
     public void setMessage(String message) {
 
         //on verifie que le type de donnée soit bien du texte
-        if(dataType != DATAType.TEXT){
-
+        if(dataType == DATAType.AUDIO){
             //sinon on renvoie une erreur
             throw new InvalidDataTypeError();
 
@@ -201,7 +200,13 @@ public class DiscussPacketHandler {
 
         switch (dataType){
 
-            case TEXT:
+            case AUDIO:
+
+                //TO DO
+
+                break;
+
+            default:
 
                 if(message == null)throw new NullPointerException();
 
@@ -250,5 +255,23 @@ public class DiscussPacketHandler {
 
     }
 
+    public void setDiscussPacketSize(int discussPacketSize) {
+        this.discussPacketSize = discussPacketSize;
+    }
 
+    public void setStartIndex(int startIndex) {
+        this.startIndex = startIndex;
+    }
+
+    public void setActualIndex(int actualIndex) {
+        this.actualIndex = actualIndex;
+    }
+
+    public void setDataType(DATAType dataType) {
+        this.dataType = dataType;
+    }
+
+    public void setVersion(VERSION version) {
+        this.version = version;
+    }
 }

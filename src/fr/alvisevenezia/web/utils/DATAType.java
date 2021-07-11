@@ -2,7 +2,7 @@ package fr.alvisevenezia.web.utils;
 
 public enum DATAType {
 
-    TEXT(0),AUDIO(1);
+    TEXT(0),AUDIO(1),ID(2);
 
     int id;
 

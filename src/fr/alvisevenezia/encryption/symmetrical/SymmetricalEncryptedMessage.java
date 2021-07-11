@@ -1,17 +1,12 @@
 package fr.alvisevenezia.encryption.symmetrical;
 
 import javax.crypto.*;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.security.auth.kerberos.EncryptionKey;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Base64;
 
 public class SymmetricalEncryptedMessage {
 

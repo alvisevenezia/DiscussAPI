@@ -78,11 +78,11 @@ public class DiscussPacket {
 
         //building the header of the discussPacket
 
-        byteBuffer.put(ByteBuffer.allocate(4).putInt(version.getId()).array()[0]);
-        byteBuffer.put(ByteBuffer.allocate(4).putInt(version.getId()).array()[1]);
+        byteBuffer.put(Integer.valueOf(((version.getId())>>8)).byteValue());
+        byteBuffer.put(Integer.valueOf(version.getId()).byteValue());
         byteBuffer.put(Integer.valueOf(((packetId)>>8)).byteValue());
         byteBuffer.put(Integer.valueOf(packetId).byteValue());
-        byteBuffer.put(ByteBuffer.allocate(4).putInt(dataType.getId()).array()[0]);
+        byteBuffer.put(Integer.valueOf(dataType.getId()).byteValue());
         byteBuffer.put(Integer.valueOf(((size)>>8)).byteValue());
         byteBuffer.put(Integer.valueOf(size).byteValue());
         byteBuffer.put(Integer.valueOf(((actualSize)>>8)).byteValue());
